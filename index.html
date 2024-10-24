@@ -116,6 +116,7 @@
                     x: {
                         type: 'time',
                         time: {
+                            unit: 'minute',
                             displayFormats: {
                                 minute: 'HH:mm',
                                 hour: 'HH:mm'
@@ -150,13 +151,15 @@
             logs.push(log);
             displayLog(log);
             updateChart(log);
+            // Save to localStorage (optional)
+            // saveLogs();
         }
 
         // Function to display a log entry on the screen
         function displayLog(log) {
             const logDiv = document.createElement('div');
             logDiv.className = 'log-entry';
-            const manualTag = log.Manual ? ' (Manual)' : '';
+            const manualTag = log.Manual ? ' (Manual)' : ' (Automatic)';
             logDiv.textContent = `${log.Time.toLocaleTimeString()} - Count: ${log.Count}${manualTag}`;
             logEntries.appendChild(logDiv);
         }
@@ -168,10 +171,10 @@
             countChart.update();
         }
 
-        // Function to start the interval logging every 5 minutes
+        // Function to start the interval logging every 1 minute
         function startLogging() {
-            // 5 minutes = 300000 milliseconds
-            intervalId = setInterval(() => addLog(false), 300000);
+            // 1 minute = 60000 milliseconds
+            intervalId = setInterval(() => addLog(false), 60000);
         }
 
         // Function to stop logging
@@ -220,8 +223,17 @@
         // Event listener for end button
         endBtn.addEventListener('click', () => {
             stopLogging();
+
+            // **New Enhancement**: Auto-log current count before exporting
+            addLog(true); // Pass 'true' to indicate it's an end-initiated log
+
+            if (logs.length === 0) {
+                alert('No logs to export.');
+                return;
+            }
+
             exportLogs();
-            // Optionally, disable buttons after ending
+            // Disable buttons after ending
             incrementBtn.disabled = true;
             logBtn.disabled = true;
             endBtn.disabled = true;
