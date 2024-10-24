@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counter App</title>
+    <title>Enhanced Counter App</title>
     <!-- SheetJS Library for XLSX Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Chart.js Library for Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,8 +21,8 @@
         }
         button {
             width: 80%;
-            padding: 20px;
-            font-size: 24px;
+            padding: 15px;
+            font-size: 20px;
             margin: 10px 0;
             border: none;
             border-radius: 10px;
@@ -28,6 +30,10 @@
         }
         #incrementBtn {
             background-color: #28a745;
+            color: white;
+        }
+        #logBtn {
+            background-color: #007bff;
             color: white;
         }
         #endBtn {
@@ -47,18 +53,35 @@
             padding: 5px 0;
             border-bottom: 1px solid #ddd;
         }
+        /* Graph Styling */
+        #chartContainer {
+            margin-top: 30px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Counter App</h1>
+    <h1>Enhanced Counter App</h1>
     <div id="counter">0</div>
     <button id="incrementBtn">Increment</button>
+    <button id="logBtn">Log</button>
     <button id="endBtn">End</button>
 
     <div id="log">
-        <h3>Logs (Every 5 Minutes)</h3>
+        <h3>Logs</h3>
         <div id="logEntries"></div>
+    </div>
+
+    <div id="chartContainer">
+        <h3>Count vs Time</h3>
+        <canvas id="countChart"></canvas>
     </div>
 
     <script>
@@ -68,8 +91,51 @@
 
         const counterDisplay = document.getElementById('counter');
         const incrementBtn = document.getElementById('incrementBtn');
+        const logBtn = document.getElementById('logBtn');
         const endBtn = document.getElementById('endBtn');
         const logEntries = document.getElementById('logEntries');
+
+        // Initialize Chart.js
+        const ctx = document.getElementById('countChart').getContext('2d');
+        const countChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // Time labels
+                datasets: [{
+                    label: 'Count',
+                    data: [],
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            displayFormats: {
+                                minute: 'HH:mm',
+                                hour: 'HH:mm'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    }
+                }
+            }
+        });
 
         // Function to update the counter display
         function updateCounter() {
@@ -77,26 +143,35 @@
         }
 
         // Function to add a log entry
-        function addLog() {
+        function addLog(isManual = false) {
             const now = new Date();
             const timeString = now.toLocaleTimeString();
-            const log = { Time: timeString, Count: count };
+            const log = { Time: now, Count: count, Manual: isManual };
             logs.push(log);
             displayLog(log);
+            updateChart(log);
         }
 
         // Function to display a log entry on the screen
         function displayLog(log) {
             const logDiv = document.createElement('div');
             logDiv.className = 'log-entry';
-            logDiv.textContent = `${log.Time} - Count: ${log.Count}`;
+            const manualTag = log.Manual ? ' (Manual)' : '';
+            logDiv.textContent = `${log.Time.toLocaleTimeString()} - Count: ${log.Count}${manualTag}`;
             logEntries.appendChild(logDiv);
+        }
+
+        // Function to update the chart with a new log
+        function updateChart(log) {
+            countChart.data.labels.push(log.Time);
+            countChart.data.datasets[0].data.push(log.Count);
+            countChart.update();
         }
 
         // Function to start the interval logging every 5 minutes
         function startLogging() {
             // 5 minutes = 300000 milliseconds
-            intervalId = setInterval(addLog, 300000);
+            intervalId = setInterval(() => addLog(false), 300000);
         }
 
         // Function to stop logging
@@ -113,8 +188,15 @@
                 return;
             }
 
+            // Prepare data for XLSX
+            const exportData = logs.map(log => ({
+                Time: log.Time.toLocaleString(),
+                Count: log.Count,
+                Type: log.Manual ? 'Manual' : 'Automatic'
+            }));
+
             // Create a worksheet from the logs
-            const ws = XLSX.utils.json_to_sheet(logs);
+            const ws = XLSX.utils.json_to_sheet(exportData);
 
             // Create a new workbook and append the worksheet
             const wb = XLSX.utils.book_new();
@@ -130,12 +212,18 @@
             updateCounter();
         });
 
+        // Event listener for log button
+        logBtn.addEventListener('click', () => {
+            addLog(true);
+        });
+
         // Event listener for end button
         endBtn.addEventListener('click', () => {
             stopLogging();
             exportLogs();
             // Optionally, disable buttons after ending
             incrementBtn.disabled = true;
+            logBtn.disabled = true;
             endBtn.disabled = true;
             alert('Counting ended and logs exported.');
         });
