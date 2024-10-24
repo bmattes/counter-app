@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter App</title>
+    <!-- SheetJS Library for XLSX Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        #counter {
+            font-size: 48px;
+            margin: 20px 0;
+        }
+        button {
+            width: 80%;
+            padding: 20px;
+            font-size: 24px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        #incrementBtn {
+            background-color: #28a745;
+            color: white;
+        }
+        #endBtn {
+            background-color: #dc3545;
+            color: white;
+        }
+        #log {
+            margin-top: 30px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Counter App</h1>
+    <div id="counter">0</div>
+    <button id="incrementBtn">Increment</button>
+    <button id="endBtn">End</button>
+
+    <div id="log">
+        <h3>Logs (Every 5 Minutes)</h3>
+        <div id="logEntries"></div>
+    </div>
+
+    <script>
+        let count = 0;
+        let logs = [];
+        let intervalId = null;
+
+        const counterDisplay = document.getElementById('counter');
+        const incrementBtn = document.getElementById('incrementBtn');
+        const endBtn = document.getElementById('endBtn');
+        const logEntries = document.getElementById('logEntries');
+
+        // Function to update the counter display
+        function updateCounter() {
+            counterDisplay.textContent = count;
+        }
+
+        // Function to add a log entry
+        function addLog() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const log = { Time: timeString, Count: count };
+            logs.push(log);
+            displayLog(log);
+        }
+
+        // Function to display a log entry on the screen
+        function displayLog(log) {
+            const logDiv = document.createElement('div');
+            logDiv.className = 'log-entry';
+            logDiv.textContent = `${log.Time} - Count: ${log.Count}`;
+            logEntries.appendChild(logDiv);
+        }
+
+        // Function to start the interval logging every 5 minutes
+        function startLogging() {
+            // 5 minutes = 300000 milliseconds
+            intervalId = setInterval(addLog, 300000);
+        }
+
+        // Function to stop logging
+        function stopLogging() {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        }
+
+        // Function to export logs as XLSX
+        function exportLogs() {
+            if (logs.length === 0) {
+                alert('No logs to export.');
+                return;
+            }
+
+            // Create a worksheet from the logs
+            const ws = XLSX.utils.json_to_sheet(logs);
+
+            // Create a new workbook and append the worksheet
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Logs");
+
+            // Generate XLSX file and trigger download
+            XLSX.writeFile(wb, "logs.xlsx");
+        }
+
+        // Event listener for increment button
+        incrementBtn.addEventListener('click', () => {
+            count++;
+            updateCounter();
+        });
+
+        // Event listener for end button
+        endBtn.addEventListener('click', () => {
+            stopLogging();
+            exportLogs();
+            // Optionally, disable buttons after ending
+            incrementBtn.disabled = true;
+            endBtn.disabled = true;
+            alert('Counting ended and logs exported.');
+        });
+
+        // Start logging when the app loads
+        window.onload = () => {
+            startLogging();
+        };
+    </script>
+
+</body>
+</html>
