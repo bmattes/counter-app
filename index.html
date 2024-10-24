@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Counter App</title>
+    <title>Halloween Counter</title>
     <!-- SheetJS Library for XLSX Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Chart.js Library for Graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Luxon Library for Date Adapters -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.0.2/luxon.min.js"></script>
+    <!-- Chart.js Time Adapter using Luxon -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -117,9 +121,11 @@
                         type: 'time',
                         time: {
                             unit: 'minute',
-                            displayFormats: {
-                                minute: 'HH:mm',
-                                hour: 'HH:mm'
+                            tooltipFormat: 'HH:mm:ss'
+                        },
+                        adapters: {
+                            date: {
+                                type: 'luxon'
                             }
                         },
                         title: {
@@ -211,6 +217,7 @@
 
         // Event listener for increment button
         incrementBtn.addEventListener('click', () => {
+            console.log("Increment button clicked"); // Debugging statement
             count++;
             updateCounter();
         });
@@ -227,11 +234,6 @@
             // **New Enhancement**: Auto-log current count before exporting
             addLog(true); // Pass 'true' to indicate it's an end-initiated log
 
-            if (logs.length === 0) {
-                alert('No logs to export.');
-                return;
-            }
-
             exportLogs();
             // Disable buttons after ending
             incrementBtn.disabled = true;
@@ -243,6 +245,7 @@
         // Start logging when the app loads
         window.onload = () => {
             startLogging();
+            updateCounter(); // Ensure counter is displayed correctly when the page loads
         };
     </script>
 
