@@ -238,6 +238,9 @@
 
         // Event listener for end button
         endBtn.addEventListener('click', () => {
+            if (!confirm('Are you sure you want to end the session and export the logs?')) {
+                return;
+            }
             stopLogging();
 
             // **New Enhancement**: Auto-log current count before exporting
