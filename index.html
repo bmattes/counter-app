@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halloween Counter</title>
+    <title>The Count-er</title>
     <!-- SheetJS Library for XLSX Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Chart.js Library for Graphs -->
@@ -17,11 +17,16 @@
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 20px;
-            background-color: #f0f0f0;
+            background-color: #2E1B4B; /* The Count's dark purple */
         }
         #counter {
-            font-size: 48px;
+            font-size: 72px;
             margin: 20px 0;
+            color: white;
+            background-color: #4A2F8A;
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid #FFD700; /* Gold border for extra visibility */
         }
         button {
             width: 80%;
@@ -33,15 +38,17 @@
             cursor: pointer;
         }
         #incrementBtn {
-            background-color: #28a745;
+            background-color: #4A2F8A; /* The Count's purple */
             color: white;
+            padding: 25px; /* Make the button larger */
+            font-size: 24px;
         }
         #logBtn {
-            background-color: #007bff;
+            background-color: #FF6347; /* Halloween-themed orange-red */
             color: white;
         }
         #endBtn {
-            background-color: #dc3545;
+            background-color: #8B0000; /* Dark red for a spooky Halloween look */
             color: white;
         }
         #log {
@@ -49,9 +56,10 @@
             text-align: left;
             max-height: 200px;
             overflow-y: auto;
-            background-color: #ffffff;
+            background-color: #4A2F8A; /* The Count's purple */
             padding: 10px;
             border-radius: 5px;
+            color: white;
         }
         .log-entry {
             padding: 5px 0;
@@ -60,7 +68,7 @@
         /* Graph Styling */
         #chartContainer {
             margin-top: 30px;
-            background-color: #ffffff;
+            background-color: #4A2F8A; /* The Count's purple */
             padding: 20px;
             border-radius: 5px;
         }
@@ -69,10 +77,11 @@
             height: auto !important;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <h1>Halloween Counter</h1>
+    <h1 style="color: #FFD700; font-family: 'Creepster', cursive;">The Count-er</h1> <!-- Gold color for the header, resembling The Count's flair -->
     <div id="counter">0</div>
     <button id="incrementBtn">Increment</button>
     <button id="logBtn">Log</button>
